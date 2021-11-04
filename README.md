@@ -3,7 +3,7 @@
 ## Configuration
 ### Meater API Authentication (DRAFT)
 ```ini
-email = <username>
+email = <email>
 password = <password>
 ```
 ### Postgres Authentication (DRAFT)
