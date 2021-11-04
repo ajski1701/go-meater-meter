@@ -2,21 +2,17 @@ package main
 
 import (
 	"fmt"
-	"mangadex-notifier/config"
-	"mangadex-notifier/gomail"
-	"mangadex-notifier/mangadex/authentication"
-	"mangadex-notifier/mangadex/manga/feed"
-	"mangadex-notifier/mangadex/manga/title"
+	"go-meater-meter/config"
+	"go-meater-meter/meater/authentication"
 	"time"
 )
 
 func main() {
-	user_cfg := config.LoadUserIni()
-	app_cfg := config.LoadAppIni()
+	userCfg := config.LoadUserIni()
+	pgCfg := config.LoadPgIni()
 	to_email := gomail.ParseToEmail(user_cfg)
 	sessionToken := authentication.GetAuth(user_cfg)
 	manga := feed.GetFollowedMangaFeedList(sessionToken)
-	lastRunTime := config.ParseLastRunTime(app_cfg)
 	newLastRunTime := time.Now()
 
 	for _, element := range manga {

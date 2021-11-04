@@ -8,10 +8,11 @@ import (
 
 const pgIniName = "pg_config.ini"
 
-func LoadAppIni() *ini.File {
+func LoadPgIni() *ini.File {
 	cfg, err := ini.Load(pgIniName)
 	if err != nil {
 		fmt.Printf("Fail to read file: %v\n", err)
+		check(err)
 	}
 	return cfg
 }

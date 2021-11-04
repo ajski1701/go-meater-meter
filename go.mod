@@ -1,4 +1,4 @@
-module mangadex-notifier
+module go-meater-meter
 
 go 1.16
 

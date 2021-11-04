@@ -1,11 +1,10 @@
 package authentication
 
-type AuthOutput struct {
-	Result string
-	Token  Tokens
-}
-
-type Tokens struct {
-	Session string
-	Refresh string
+type Authentication struct {
+	Status     string `json:"status"`
+	StatusCode int    `json:"statusCode"`
+	Data       struct {
+		Token  string
+		userId string
+	}
 }
