@@ -51,7 +51,7 @@ func submitInfluxData(devices []models.Devices, sessionToken string, client infl
 			"cook_state":                  device.Cook.State,
 			"updated_at":                  device.Updated_At,
 		}
-		influxdb.WriteData(client, tags, fields)
+		go influxdb.WriteData(client, tags, fields)
 		fmt.Println(time.Now(), "Successfully wrote influxdb data for", device.Id)
 	}
 }
