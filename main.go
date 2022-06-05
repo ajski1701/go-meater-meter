@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"go-meater-meter/config"
 	"go-meater-meter/meater/authentication"
 	"go-meater-meter/meater/devices"
@@ -35,7 +34,6 @@ func getPollRate() int {
 
 func submitInfluxData(devices []models.Devices, sessionToken string, client influxdb2.Client) {
 	for _, device := range devices {
-		fmt.Println(device)
 		tags := map[string]string{
 			"device_id": device.Id,
 			"cook_id":   device.Cook.Id,
