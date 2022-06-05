@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	models "go-meater-meter/meater/models"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -12,13 +13,13 @@ import (
 )
 
 func GetAuth(cfg *ini.File) string {
-	username := cfg.Section("mangadex").Key("username").String()
-	password := cfg.Section("mangadex").Key("password").String()
-	values := map[string]string{"username": username, "password": password}
+	email := cfg.Section("api-authentication").Key("email").String()
+	password := cfg.Section("api-authentication").Key("password").String()
+	values := map[string]string{"email": email, "password": password}
 
 	jsonValue, _ := json.Marshal(values)
-	//https://api.mangadex.org/docs.html#operation/post-auth-login
-	resp, err := http.Post("https://api.mangadex.org/auth/login", "application/json", bytes.NewBuffer(jsonValue))
+	//https://github.com/apption-labs/meater-cloud-public-rest-api#api-endpoints
+	resp, err := http.Post("https://public-api.cloud.meater.com/v1/login", "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
 		panic(err)
 	}
@@ -37,9 +38,8 @@ func GetAuth(cfg *ini.File) string {
 		panic(err)
 	}
 
-	var result AuthOutput
+	var result models.Authentication
 	json.Unmarshal([]byte(body), &result)
-	sessionToken := result.Token.Session
-
+	sessionToken := result.Data.Token
 	return sessionToken
 }

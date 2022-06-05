@@ -1,4 +1,4 @@
-package title
+package devices
 
 import "time"
 
