@@ -41,14 +41,14 @@ func submitInfluxData(devices []models.Devices, sessionToken string, client infl
 			"cook_name": device.Cook.Name,
 		}
 		fields := map[string]interface{}{
-			"internal_temperature":    device.Temperature.Internal,
-			"ambient_temperature":     device.Temperature.Ambient,
-			"cook_target_temperature": device.Cook.Temperature.Target,
-			"cook_peak_temperature":   device.Cook.Temperature.Peak,
-			"cook_elapsed_time":       device.Cook.Time.Elapsed,
-			"cook_remaining_time":     device.Cook.Time.Remaining,
-			"cook_state":              device.Cook.State,
-			"updated_at":              device.Updated_At,
+			"device_internal_temperature": device.Temperature.Internal,
+			"device_ambient_temperature":  device.Temperature.Ambient,
+			"cook_target_temperature":     device.Cook.Temperature.Target,
+			"cook_peak_temperature":       device.Cook.Temperature.Peak,
+			"cook_elapsed_time":           device.Cook.Time.Elapsed,
+			"cook_remaining_time":         device.Cook.Time.Remaining,
+			"cook_state":                  device.Cook.State,
+			"updated_at":                  device.Updated_At,
 		}
 		influxdb.WriteData(client, tags, fields)
 	}
