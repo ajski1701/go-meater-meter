@@ -1,6 +1,11 @@
 # go-meater-meter
 
-## Configuration - config.ini
+## Configuration
+### Docker Environment
+| Environment Variable | Description | Default |
+| ----------- | ----------- | ----------- |
+| CONFIG_FILE      | Location of the application's config file       | /app/config.ini |
+### config.ini
 ```ini
 [api-authentication]
 email = "<meater_cloud_email>" #OPTIONAL IF USING TOKEN AUTHENICATION
