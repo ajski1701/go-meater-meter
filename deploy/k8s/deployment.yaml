@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-meater-meter-deployment
+  labels:
+    app: go-meater-meter
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-meater-meter
+  template:
+    metadata:
+      labels:
+        app: go-meater-meter
+    spec:
+      automountServiceAccountToken: true
+      serviceAccount: go-meater-meter-sa
+      containers:
+      - name: go-meater-meter
+        image: quay.io/aj1701/go-meater-meter:leadertesting
+        imagePullPolicy: Always
+        args:
+          - --lease-name=go-meater-meter-lease
+        volumeMounts:
+          - mountPath: "/app/config.ini"
+            name: config
+            subPath: config.ini
+            readOnly: true
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+      volumes:
+      - name: config
+        secret:
+          secretName: app-config
+          optional: false # default setting; "mysecret" must exist

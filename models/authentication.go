@@ -1,4 +1,4 @@
-package model
+package models
 
 type Authentication struct {
 	Status     string `json:"status"`
