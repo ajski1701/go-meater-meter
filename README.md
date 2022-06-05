@@ -3,8 +3,9 @@
 ## Configuration - config.ini
 ```ini
 [api-authentication]
-email = "<meater_cloud_email>"
-password = "<meater_cloud_password>"
+email = "<meater_cloud_email>" #OPTIONAL IF USING TOKEN AUTHENICATION
+password = "<meater_cloud_password>" #OPTIONAL IF USING TOKEN AUTHENICATION
+token = "<meater_cloud_api_token>" #EMAIL/PASSWORD OPTIONS ARE IGNORED IF USED
 
 [app-config]
 poll_rate = 30 #in seconds
