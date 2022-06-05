@@ -1,14 +1,9 @@
 FROM registry.access.redhat.com/ubi8/go-toolset:latest AS build
 
-#WORKDIR /app
+WORKDIR /app
 
-COPY go.mod ./
-COPY go.sum ./
-RUN go mod download
-
-COPY *.go ./
-
-RUN go build -o /bin/meater-meter
+COPY . .
+RUN go mod download && go build
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
-COPY --from=build /bin/meater-meter /bin/meater-meter
+COPY --from=build /app/go-meater-meter /bin/go-meater-meter
