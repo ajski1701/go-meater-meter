@@ -19,9 +19,19 @@ spec:
       containers:
       - name: go-meater-meter
         image: quay.io/aj1701/go-meater-meter:latest
+        volumeMounts:
+          - mountPath: "/app/config.ini"
+            name: app-config
+            subPath: config.ini
+            readOnly: true
         env:
           - name: POD_NAME
             valueFrom:
                   fieldRef:
                     apiVersion: v1
                     fieldPath: metadata.name
+      volumes:
+      - name: app-config
+        secret:
+          secretName: app-config
+          optional: false # default setting; "mysecret" must exist
