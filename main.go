@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -10,8 +13,18 @@ import (
 	"github.com/ajski1701/go-meater-meter/devices"
 	"github.com/ajski1701/go-meater-meter/influxdb"
 	"github.com/ajski1701/go-meater-meter/models"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clientset "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/leaderelection"
+	"k8s.io/client-go/tools/leaderelection/resourcelock"
+	"k8s.io/klog"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+)
+
+var (
+	client *clientset.Clientset
 )
 
 func getAuthenticationToken() string {
@@ -55,19 +68,86 @@ func submitInfluxData(devices []models.Devices, sessionToken string, client infl
 	}
 }
 
+func getAndSubmit(sessionToken string) {
+	fmt.Println(time.Now(), "Querying Meater Cloud Device API")
+	devices := devices.GetDevices(sessionToken)
+	influxdbClient := influxdb.GetInfluxClient()
+	pollRate := getPollRate()
+
+	submitInfluxData(devices, sessionToken, influxdbClient)
+	fmt.Println(time.Now(), "Successfully wrote influxdb data for all devices")
+	time.Sleep(time.Duration(pollRate) * time.Second)
+}
+
 func main() {
 	fmt.Println(time.Now(), "Starting go-meater-meter application")
 	fmt.Println(time.Now(), "Authenticating to Meater Cloud API")
 	sessionToken := getAuthenticationToken()
 
-	for {
-		fmt.Println(time.Now(), "Querying Meater Cloud Device API")
-		devices := devices.GetDevices(sessionToken)
-		influxdbClient := influxdb.GetInfluxClient()
-		pollRate := getPollRate()
+	var (
+		leaseLockName      string
+		leaseLockNamespace string
+		podName            = os.Getenv("POD_NAME")
+	)
+	flag.StringVar(&leaseLockName, "lease-name", "", "Name of lease lock")
+	flag.StringVar(&leaseLockNamespace, "lease-namespace", "default", "Name of lease lock namespace")
+	flag.Parse()
 
-		submitInfluxData(devices, sessionToken, influxdbClient)
-		fmt.Println(time.Now(), "Successfully wrote influxdb data for all devices")
-		time.Sleep(time.Duration(pollRate) * time.Second)
+	if leaseLockName == "" {
+		klog.Fatal("missing lease-name flag")
 	}
+	if leaseLockNamespace == "" {
+		klog.Fatal("missing lease-namespace flag")
+	}
+
+	config, err := rest.InClusterConfig()
+	client = clientset.NewForConfigOrDie(config)
+
+	if err != nil {
+		klog.Fatalf("failed to get kubeconfig")
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	lock := getNewLock(leaseLockName, podName, leaseLockNamespace)
+	runLeaderElection(lock, ctx, podName, sessionToken)
+}
+
+func getNewLock(lockname, podname, namespace string) *resourcelock.LeaseLock {
+	return &resourcelock.LeaseLock{
+		LeaseMeta: metav1.ObjectMeta{
+			Name:      lockname,
+			Namespace: namespace,
+		},
+		Client: client.CoordinationV1(),
+		LockConfig: resourcelock.ResourceLockConfig{
+			Identity: podname,
+		},
+	}
+}
+
+func runLeaderElection(lock *resourcelock.LeaseLock, ctx context.Context, id string, sessionToken string) {
+	leaderelection.RunOrDie(ctx, leaderelection.LeaderElectionConfig{
+		Lock:            lock,
+		ReleaseOnCancel: true,
+		LeaseDuration:   15 * time.Second,
+		RenewDeadline:   10 * time.Second,
+		RetryPeriod:     2 * time.Second,
+		Callbacks: leaderelection.LeaderCallbacks{
+			OnStartedLeading: func(c context.Context) {
+				getAndSubmit(sessionToken)
+			},
+			OnStoppedLeading: func() {
+				klog.Info("no longer the leader, staying inactive.")
+			},
+			OnNewLeader: func(current_id string) {
+				if current_id == id {
+					klog.Info("still the leader!")
+					return
+				}
+				klog.Info("new leader is %s", current_id)
+			},
+		},
+	})
 }
