@@ -2,15 +2,22 @@ package devices
 
 import (
 	"encoding/json"
+	"go-meater-meter/config"
 	models "go-meater-meter/meater/models"
 	"io/ioutil"
 	"net/http"
 )
 
 func GetDevices(token string) []models.Devices {
+	url_debug := config.LoadConfigIni().Section("debug").Key("device_api_url").String()
+	var url string
 	var bearer = "Bearer " + token
 
-	url := "https://public-api.cloud.meater.com/v1/devices"
+	if url_debug == "" {
+		url = "https://public-api.cloud.meater.com/v1/devices"
+	} else {
+		url = url_debug
+	}
 	//url = "http://127.0.0.1:8080/device_json"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

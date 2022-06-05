@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go-meater-meter/config"
 	"go-meater-meter/meater/authentication"
 	"go-meater-meter/meater/devices"
@@ -46,6 +47,8 @@ func submitInfluxData(devices []models.Devices, sessionToken string, client infl
 			"cook_peak_temperature":   device.Cook.Temperature.Peak,
 			"cook_elapsed_time":       device.Cook.Time.Elapsed,
 			"cook_remaining_time":     device.Cook.Time.Remaining,
+			"cook_state":              device.Cook.State,
+			"updated_at":              device.Updated_At,
 		}
 		influxdb.WriteData(client, tags, fields)
 	}
@@ -60,6 +63,7 @@ func main() {
 		pollRate := getPollRate()
 
 		submitInfluxData(devices, sessionToken, influxdbClient)
+		fmt.Println(devices)
 		time.Sleep(time.Duration(pollRate) * time.Second)
 	}
 }
