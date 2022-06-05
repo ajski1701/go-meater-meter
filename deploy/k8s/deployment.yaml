@@ -18,20 +18,23 @@ spec:
       serviceAccount: go-meater-meter-sa
       containers:
       - name: go-meater-meter
-        image: quay.io/aj1701/go-meater-meter:latest
+        image: quay.io/aj1701/go-meater-meter:leadertesting
+        imagePullPolicy: Always
+        args:
+          - --lease-name=go-meater-meter-lease
         volumeMounts:
           - mountPath: "/app/config.ini"
-            name: app-config
+            name: config
             subPath: config.ini
             readOnly: true
         env:
           - name: POD_NAME
             valueFrom:
-                  fieldRef:
-                    apiVersion: v1
-                    fieldPath: metadata.name
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
       volumes:
-      - name: app-config
+      - name: config
         secret:
           secretName: app-config
           optional: false # default setting; "mysecret" must exist
