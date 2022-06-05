@@ -2,10 +2,12 @@ package devices
 
 import (
 	"encoding/json"
-	"go-meater-meter/config"
-	models "go-meater-meter/meater/models"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/ajski1701/go-meater-meter/config"
+
+	models "github.com/ajski1701/go-meater-meter/models"
 )
 
 func GetDevices(token string) []models.Devices {

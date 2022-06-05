@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"go-meater-meter/config"
-	"go-meater-meter/meater/authentication"
-	"go-meater-meter/meater/devices"
-	"go-meater-meter/meater/influxdb"
-	models "go-meater-meter/meater/models"
 	"strconv"
 	"time"
+
+	"github.com/ajski1701/go-meater-meter/authentication"
+	"github.com/ajski1701/go-meater-meter/config"
+	"github.com/ajski1701/go-meater-meter/devices"
+	"github.com/ajski1701/go-meater-meter/influxdb"
+	models "github.com/ajski1701/go-meater-meter/models"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
