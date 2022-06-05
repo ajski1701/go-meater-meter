@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -64,25 +63,27 @@ func submitInfluxData(devices []models.Devices, sessionToken string, client infl
 			"cook_state":                  device.Cook.State,
 			"updated_at":                  device.Updated_At,
 		}
+		klog.Info("Writing influxdb data for ", device.Id)
 		go influxdb.WriteData(client, tags, fields)
 	}
 }
 
-func getAndSubmit(sessionToken string) {
-	fmt.Println(time.Now(), "Querying Meater Cloud Device API")
-	devices := devices.GetDevices(sessionToken)
-	influxdbClient := influxdb.GetInfluxClient()
-	pollRate := getPollRate()
+func getAndSubmit() {
+	for {
+		klog.Info("Authenticating to Meater Cloud API")
+		sessionToken := getAuthenticationToken()
+		klog.Info("Querying Meater Cloud Device API")
+		devices := devices.GetDevices(sessionToken)
+		influxdbClient := influxdb.GetInfluxClient()
+		pollRate := getPollRate()
 
-	submitInfluxData(devices, sessionToken, influxdbClient)
-	fmt.Println(time.Now(), "Successfully wrote influxdb data for all devices")
-	time.Sleep(time.Duration(pollRate) * time.Second)
+		submitInfluxData(devices, sessionToken, influxdbClient)
+		time.Sleep(time.Duration(pollRate) * time.Second)
+	}
 }
 
 func main() {
-	fmt.Println(time.Now(), "Starting go-meater-meter application")
-	fmt.Println(time.Now(), "Authenticating to Meater Cloud API")
-	sessionToken := getAuthenticationToken()
+	klog.Info("Starting go-meater-meter application")
 
 	var (
 		leaseLockName      string
@@ -94,24 +95,24 @@ func main() {
 	flag.Parse()
 
 	if leaseLockName == "" {
-		klog.Fatal("missing lease-name flag")
+		klog.Fatal("Missing lease-name flag")
 	}
 	if leaseLockNamespace == "" {
-		klog.Fatal("missing lease-namespace flag")
+		klog.Fatal("Missing lease-namespace flag")
 	}
 
 	config, err := rest.InClusterConfig()
 	client = clientset.NewForConfigOrDie(config)
 
 	if err != nil {
-		klog.Fatalf("failed to get kubeconfig")
+		klog.Fatalf("Failed to get kubeconfig")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	lock := getNewLock(leaseLockName, podName, leaseLockNamespace)
-	runLeaderElection(lock, ctx, podName, sessionToken)
+	runLeaderElection(lock, ctx, podName)
 }
 
 func getNewLock(lockname, podname, namespace string) *resourcelock.LeaseLock {
@@ -127,7 +128,7 @@ func getNewLock(lockname, podname, namespace string) *resourcelock.LeaseLock {
 	}
 }
 
-func runLeaderElection(lock *resourcelock.LeaseLock, ctx context.Context, id string, sessionToken string) {
+func runLeaderElection(lock *resourcelock.LeaseLock, ctx context.Context, id string) {
 	leaderelection.RunOrDie(ctx, leaderelection.LeaderElectionConfig{
 		Lock:            lock,
 		ReleaseOnCancel: true,
@@ -136,17 +137,17 @@ func runLeaderElection(lock *resourcelock.LeaseLock, ctx context.Context, id str
 		RetryPeriod:     2 * time.Second,
 		Callbacks: leaderelection.LeaderCallbacks{
 			OnStartedLeading: func(c context.Context) {
-				getAndSubmit(sessionToken)
+				go getAndSubmit()
 			},
 			OnStoppedLeading: func() {
-				klog.Info("no longer the leader, staying inactive.")
+				klog.Info("No longer the leader, staying inactive")
 			},
 			OnNewLeader: func(current_id string) {
 				if current_id == id {
-					klog.Info("still the leader!")
+					klog.Info("Still the leader")
 					return
 				}
-				klog.Info("new leader is %s", current_id)
+				klog.Info("Newly elected leader is ", current_id)
 			},
 		},
 	})
