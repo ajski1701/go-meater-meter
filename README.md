@@ -3,7 +3,7 @@
 ## Configuration - config.ini
 ```ini
 [api-authentication]
-email = "<meater_cloud_password>"
+email = "<meater_cloud_email>"
 password = "<meater_cloud_password>"
 
 [app-config]
@@ -11,9 +11,9 @@ poll_rate = 30 #in seconds
 
 [influxdb]
 url = "<influxdb_url>"
-token = "<influxdb_token>" #INFLUXDB_TOKEN
-org = "<org>"
-bucket = "<bucket>"
+token = "<influxdb_token>"
+org = "<influxdb_org>"
+bucket = "<influxdb_bucket>"
 ```
 
 ## References
