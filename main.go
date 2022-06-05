@@ -52,19 +52,23 @@ func submitInfluxData(devices []models.Devices, sessionToken string, client infl
 			"updated_at":                  device.Updated_At,
 		}
 		influxdb.WriteData(client, tags, fields)
+		fmt.Println(time.Now(), "Successfully wrote influxdb data for", device.Id)
 	}
 }
 
 func main() {
+	fmt.Println(time.Now(), "Starting go-meater-meter application")
+	fmt.Println(time.Now(), "Authenticating to Meater Cloud API")
 	sessionToken := getAuthenticationToken()
 
 	for {
+		fmt.Println(time.Now(), "Querying Meater Cloud Device API")
 		devices := devices.GetDevices(sessionToken)
 		influxdbClient := influxdb.GetInfluxClient()
 		pollRate := getPollRate()
 
 		submitInfluxData(devices, sessionToken, influxdbClient)
-		fmt.Println(devices)
+		fmt.Println(time.Now(), "Successfully wrote influxdb data for all devices")
 		time.Sleep(time.Duration(pollRate) * time.Second)
 	}
 }

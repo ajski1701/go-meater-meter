@@ -16,6 +16,11 @@ org = "<influxdb_org>"
 bucket = "<influxdb_bucket>"
 ```
 
+## Running in Docker
+```
+docker run -dit --name meater-meter -v <configFilePath>\config.ini:/app/config.ini quay.io/aj1701/go-meater-meter:latest
+```
+
 ## References
 ### API Spec
 https://github.com/apption-labs/meater-cloud-public-rest-api
