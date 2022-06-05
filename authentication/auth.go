@@ -19,9 +19,10 @@ func GetAuth(cfg *ini.File) string {
 	password := cfg.Section("api-authentication").Key("password").String()
 
 	if len(token) > 0 {
+		fmt.Println(time.Now(), "Token authenticaton detected")
 		return token
 	}
-
+	fmt.Println(time.Now(), "Email and password authenticaton detected")
 	values := map[string]string{"email": email, "password": password}
 
 	jsonValue, _ := json.Marshal(values)
