@@ -2,9 +2,10 @@ package influxdb
 
 import (
 	"context"
-	"go-meater-meter/config"
 	"log"
 	"time"
+
+	"github.com/ajski1701/go-meater-meter/config"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )

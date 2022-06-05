@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	models "go-meater-meter/meater/models"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	models "github.com/ajski1701/go-meater-meter/models"
 
 	"gopkg.in/ini.v1"
 )
