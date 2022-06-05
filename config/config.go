@@ -2,11 +2,10 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"gopkg.in/ini.v1"
 )
-
-const configFileName = "config.ini"
 
 func check(e error) {
 	if e != nil {
@@ -15,7 +14,11 @@ func check(e error) {
 }
 
 func LoadConfigIni() *ini.File {
-	cfg, err := ini.Load(configFileName)
+	configFile := os.Getenv("CONFIG_FILE")
+	if len(configFile) == 0 {
+		configFile = "config.ini"
+	}
+	cfg, err := ini.Load(configFile)
 	if err != nil {
 		fmt.Printf("Fail to read file: %v\n", err)
 		check(err)
