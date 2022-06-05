@@ -1,7 +1,7 @@
 # go-meater-meter
 
 ## Configuration
-### Docker Environment
+### Container Environment Variables
 | Environment Variable | Description | Default |
 | ----------- | ----------- | ----------- |
 | CONFIG_FILE      | Location of the application's config file       | /app/config.ini |
