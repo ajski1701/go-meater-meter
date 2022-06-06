@@ -18,7 +18,7 @@ spec:
       serviceAccount: go-meater-meter-sa
       containers:
       - name: go-meater-meter
-        image: quay.io/aj1701/go-meater-meter:leadertesting
+        image: quay.io/aj1701/go-meater-meter:latest
         imagePullPolicy: Always
         args:
           - --lease-name=go-meater-meter-lease
