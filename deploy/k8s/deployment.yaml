@@ -37,4 +37,3 @@ spec:
       - name: config
         secret:
           secretName: app-config
-          optional: false # default setting; "mysecret" must exist
