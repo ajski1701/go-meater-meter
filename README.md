@@ -27,6 +27,9 @@ bucket = "<influxdb_bucket>"
 docker run -dit --name meater-meter -v <configFilePath>\config.ini:/app/config.ini quay.io/aj1701/go-meater-meter:latest
 ```
 
+## Deploying to Kubernetes
+Deploy the manifests from deploy/k8s and create a Kubernetes secret with the ini file.
+
 ## References
 ### API Spec
 https://github.com/apption-labs/meater-cloud-public-rest-api
